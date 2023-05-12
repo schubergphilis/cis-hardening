@@ -1,7 +1,7 @@
 on: [push]
 
 jobs:
-  build:
+  cookstyle:
     runs-on: chef/chefworkstation
     steps:
       - name: Checkout
