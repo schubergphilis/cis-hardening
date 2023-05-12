@@ -12,4 +12,6 @@ jobs:
           sudo dpkg -i chef-workstation_*.deb
           chef -v
           echo $(pwd)
+      - name: Run Cookstyle
+        run: |
           cookstyle .
