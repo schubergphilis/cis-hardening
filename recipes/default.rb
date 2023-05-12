@@ -4,7 +4,6 @@
 #
 # Copyright:: 2023, NewCold customer team at Schuberg Philis, All Rights Reserved.
 sysctl_items = {}
-dev_shm_options = %w(defaults rw)
 cisecurity = node['cis_compliance']['xccdf_org']['cisecurity']
 
 directory '/var/log/journal' do
@@ -25,27 +24,14 @@ include_recipe 'os-hardening::securetty'
 include_recipe 'os-hardening::selinux'
 include_recipe 'os-hardening::suid_sgid'
 
-# xccdf_org.cisecurity.benchmarks_rule_1.1.15_Ensure_nodev_option_set_on_devshm_partition
-dev_shm_options.push('nodev') if cisecurity['benchmarks_rule_Ensure_nodev_option_set_on_devshm_partition']
-
-# xccdf_org.cisecurity.benchmarks_rule_1.1.16_Ensure_nosuid_option_set_on_devshm_partition
-dev_shm_options.push('nosuid') if cisecurity['benchmarks_rule_Ensure_nosuid_option_set_on_devshm_partition']
-
-# xccdf_org.cisecurity.benchmarks_rule_1.1.17_Ensure_noexec_option_set_on_devshm_partition
-dev_shm_options.push('noexec') if cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_devshm_partition']
-
-mount '/dev/shm' do
-  pass 0
-  device 'tmpfs'
-  fstype 'tmpfs'
-  options dev_shm_options.join(',')
-  action [:mount, :enable]
-end
+# xccdf_org.cisecurity.benchmarks_rule_1.1.3, 1.1.4, 1.1.5, 1.1.7, 1.1.8, 1.1.9, 1.1.12, 1.1.13, 1.1.14
+include_recipe "#{cookbook_name}::kernel.rb"
 
 # xccdf_org.cisecurity.benchmarks_rule_1.1.23_Disable_USB_Storage
 %w(uas usb-storage).each do |m|
   kernel_module m do
     action [ :unload, :disable, :blacklist ]
+    only_if { cisecurity['benchmarks_rule_1.1.23_Disable_USB_Storage'] }
   end
 end
 

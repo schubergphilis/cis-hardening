@@ -56,9 +56,15 @@ default['cis_compliance'].tap do |cis_compliance|
     cisecurity['benchmarks_rule_Ensure_lockout_for_failed_password_attempts_is_configured'] = true
     cisecurity['benchmarks_rule_Ensure_message_of_the_day_is_configured_properly'] = true
     # cisecurity['benchmarks_rule_Ensure_minimum_days_between_password_changes_is_7_or_more'] = true
+    cisecurity['benchmarks_rule_Ensure_nodev_option_set_on_tmp_partition'] = true
+    cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_tmp_partition'] = true
+    cisecurity['benchmarks_rule_Ensure_nosuid_option_set_on_tmp_partition'] = true
     cisecurity['benchmarks_rule_Ensure_nodev_option_set_on_devshm_partition'] = true
     cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_devshm_partition'] = true
     cisecurity['benchmarks_rule_Ensure_nosuid_option_set_on_devshm_partition'] = true
+    cisecurity['benchmarks_rule_Ensure_nodev_option_set_on_vartmp_partition'] = true
+    cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_vartmp_partition'] = true
+    cisecurity['benchmarks_rule_Ensure_nosuid_option_set_on_vartmp_partition'] = true
     cisecurity['benchmarks_rule_Ensure_only_approved_MAC_algorithms_are_used'] = true
     cisecurity['benchmarks_rule_Ensure_packet_redirect_sending_is_disabled'] = true
     cisecurity['benchmarks_rule_Ensure_password_creation_requirements_are_configured'] = true
