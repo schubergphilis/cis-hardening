@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: chef/chefworkstation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and Bundle Cookbooks and dependencies
+        run: |
+          echo `pwd`
+          echo "\n"
+          cookstyle -v
+          cookstyle .
