@@ -25,7 +25,7 @@ include_recipe 'os-hardening::selinux'
 include_recipe 'os-hardening::suid_sgid'
 
 # xccdf_org.cisecurity.benchmarks_rule_1.1.3, 1.1.4, 1.1.5, 1.1.7, 1.1.8, 1.1.9, 1.1.12, 1.1.13, 1.1.14
-include_recipe "#{cookbook_name}::fstab.rb"
+include_recipe "#{cookbook_name}::fstab"
 
 # xccdf_org.cisecurity.benchmarks_rule_1.1.23_Disable_USB_Storage
 %w(uas usb-storage).each do |m|
