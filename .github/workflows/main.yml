@@ -1,0 +1,17 @@
+on: [push]
+
+jobs:
+  cookstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Chef-Workstation
+        run: |
+          wget -q https://packages.chef.io/files/stable/chef-workstation/23.4.1032/ubuntu/22.04/chef-workstation_23.4.1032-1_amd64.deb
+          sudo dpkg -i chef-workstation_*.deb
+          chef -v
+          echo $(pwd)
+      - name: Run Cookstyle
+        run: |
+          cookstyle .
