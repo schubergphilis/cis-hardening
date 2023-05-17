@@ -68,14 +68,18 @@ sysctl_items['fs.suid_dumpable'] = 0 if cisecurity['benchmarks_rule_Ensure_core_
 sysctl_items['kernel.randomize_va_space'] = 2 if cisecurity['benchmarks_rule_Ensure_address_space_layout_randomization_ASLR_is_enabled']
 
 # xccdf_org.cisecurity.benchmarks_rule_1.8.1.1_Ensure_message_of_the_day_is_configured_properly
-file '/etc/issue' do
-  owner 'root'
-  group 'root'
-  mode '0644'
-  content "This system is restricted to authorized users only. Individuals attempting unauthorized access will be prosecuted.\n" \
-          "If unauthorized, terminate access now! Continued access indicates your acceptance of this information.\n"
-  only_if { cisecurity['benchmarks_rule_Ensure_message_of_the_day_is_configured_properly'] }
-  action :create
+# xccdf_org.cisecurity.benchmarks_rule_1.7.2_Ensure_local_login_warning_banner_is_configured_properly
+# xccdf_org.cisecurity.benchmarks_rule_1.7.3_Ensure_remote_login_warning_banner_is_configured_properly
+['/etc/issue', '/etc/issue.net'].each do |loginfile|
+  file loginfile do
+    content "This system is restricted to authorized users only. Individuals attempting unauthorized access will be prosecuted.\n" \
+            "If unauthorized, terminate access now! Continued access indicates your acceptance of this information.\n"
+    mode 0644
+    owner 'root'
+    group 'root'
+    only_if { cisecurity['benchmarks_rule_Ensure_message_of_the_day_is_configured_properly'] }
+    action :create
+  end
 end
 
 # # xccdf_org.cisecurity.benchmarks_rule_1.10_Ensure_system-wide_crypto_policy_is_not_legacy
