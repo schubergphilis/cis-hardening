@@ -9,6 +9,7 @@ default['cis_compliance'].tap do |cis_compliance|
   cis_compliance['sbp_kernel_is_not_tainted'] = true
   cis_compliance['sbp_kernel_only_allows_signed_modules'] = true
   cis_compliance['sbp_mrepos_are_not_older_than_6_weeks'] = true
+  cis_compliance['sbp_ensure_cbc_not_enabled_openssh']    = true
 
   # CIS templates
   cis_compliance['xccdf_org']['cisecurity'].tap do |cisecurity|
