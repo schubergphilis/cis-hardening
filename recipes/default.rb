@@ -78,15 +78,39 @@ file '/etc/issue' do
   action :create
 end
 
-# # xccdf_org.cisecurity.benchmarks_rule_1.10_Ensure_system-wide_crypto_policy_is_not_legacy
-# bash 'crypto-policies' do
-#   code <<-EOH
-#   sed -i 's/^LEGACY/DEFAULT/' /etc/crypto-policies/config
-#   EOH
-#   only_if { cisecurity['benchmarks_rule_Ensure_system-wide_crypto_policy_is_not_legacy'] }
-#   only_if { node['platform_version'].to_i >= 8 }
-#   action :run
-# end
+# xccdf_org.cisecurity.benchmarks_rule_1.10_Ensure_system-wide_crypto_policy_is_not_legacy
+bash 'crypto-policies' do
+  code <<-EOH
+  sed -i 's/^LEGACY/DEFAULT/' /etc/crypto-policies/config
+  EOH
+  only_if { cisecurity['benchmarks_rule_Ensure_system-wide_crypto_policy_is_not_legacy'] }
+  only_if { node['platform_version'].to_i >= 8 }
+  action :run
+end
+
+# Ensure no CBC ciphers are used by OpenSSH server
+file '/etc/crypto-policies/policies/modules/DISABLE-CBC.pmod' do
+  content <<~EOU
+  cipher@ssh = -AES-128-CBC -AES-256-CBC
+  EOU
+  owner 'root'
+  group 'root'
+  mode '0750'
+  action :create
+  only_if { node['cis_compliance']['sbp_ensure_cbc_not_enabled_openssh'] }
+  only_if { node['platform_version'].to_i >= 8 }
+end
+file '/etc/crypto-policies/config' do
+  content <<~EOU
+  DEFAULT:DISABLE-CBC
+  EOU
+  owner 'root'
+  group 'root'
+  mode '0750'
+  action :create
+  only_if { node['cis_compliance']['sbp_ensure_cbc_not_enabled_openssh'] }
+  only_if { node['platform_version'].to_i >= 8 }
+end
 
 # xccdf_org.cisecurity.benchmarks_rule_2.3.2_Ensure_telnet_client_is_not_installed
 package 'telnet' do
