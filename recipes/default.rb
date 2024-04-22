@@ -28,11 +28,17 @@ include_recipe 'os-hardening::suid_sgid'
 include_recipe "#{cookbook_name}::fstab"
 
 # xccdf_org.cisecurity.benchmarks_rule_1.1.23_Disable_USB_Storage
-%w(uas usb-storage).each do |m|
+%w(uas usb-storage usb_storage).each do |m|
   kernel_module m do
     action [ :unload, :disable, :blacklist ]
     only_if { cisecurity['benchmarks_rule_1.1.23_Disable_USB_Storage'] }
   end
+end
+
+execute 'rmmod usb-storage' do
+  command 'rmmod usb-storage'
+  action :run
+  only_if { cisecurity['benchmarks_rule_1.1.23_Disable_USB_Storage'] }
 end
 
 # xccdf_org.cisecurity.benchmarks_rule_1.3.2_Ensure_sudo_commands_use_pty
@@ -92,6 +98,20 @@ end
 #   action :run
 # end
 
+# xccdf_org.cisecurity.benchmarks_rule_2.2.17_Ensure_nfs-utils_is_not_installed_or_the__nfs-server_service_is_masked
+package_options = %w()
+package_options.push('nfs-utils') if cisecurity['benchmarks_rule_Ensure_nfs-utils_is_not_installed_or_the__nfs-server_service_is_masked']
+
+# xccdf_org.cisecurity.benchmarks_rule_2.2.18_Ensure_rpcbind_is_not_installed_or_the__rpcbind_services_are_masked
+package_options.push('rpcbind') if cisecurity['benchmarks_rule_Ensure_rpcbind_is_not_installed_or_the__rpcbind_services_are_masked']
+
+# xccdf_org.cisecurity.benchmarks_rule_2.2.19_Ensure_rsync_is_not_installed_or_the_rsyncd_service_is_masked
+package_options.push('rsync') if cisecurity['benchmarks_rule_Ensure_rsync_is_not_installed_or_the_rsyncd_service_is_masked']
+
+package package_options do
+  action :remove
+end
+
 # xccdf_org.cisecurity.benchmarks_rule_2.3.2_Ensure_telnet_client_is_not_installed
 package 'telnet' do
   action :remove
@@ -144,12 +164,21 @@ sysctl_items['net.ipv6.conf.all.accept_ra'] = 0 if cisecurity['benchmarks_rule_E
 sysctl_items['net.ipv6.conf.default.accept_ra'] = 0 if cisecurity['benchmarks_rule_Ensure_IPv6_router_advertisements_are_not_accepted']
 
 # xccdf_org.cisecurity.benchmarks_rule_3.5_Ensure_wireless_interfaces_are_disabled
+package 'NetworkManager' do
+  action :install
+end
+
+service 'NetworkManager' do
+  service_name 'NetworkManager'
+  action [:start, :enable]
+end
+
 bash 'disable_wifi' do
   code <<-EOH
   nmcli radio wifi off
   EOH
   only_if { cisecurity['benchmarks_rule_Ensure_wireless_interfaces_are_disabled'] }
-  only_if { node['platform_version'].to_i >= 8 }
+  #only_if { node['platform_version'].to_i >= 8 }
   not_if 'nmcli radio wifi | grep disabled'
   ignore_failure true
   action :run
@@ -160,10 +189,29 @@ bash 'disable_wwan' do
   nmcli radio wwan off
   EOH
   only_if { cisecurity['benchmarks_rule_Ensure_wireless_interfaces_are_disabled'] }
-  only_if { node['platform_version'].to_i >= 8 }
+  #only_if { node['platform_version'].to_i >= 8 }
   not_if 'nmcli radio wwan | grep disabled'
   ignore_failure true
   action :run
+end
+
+# xccdf_org.cisecurity.benchmarks_rule_4.2.1.3_Ensure_rsyslog_default_file_permissions_configured
+
+file '/etc/rsyslog.conf' do
+  mode '0640'
+  only_if { cisecurity['benchmarks_rule_Ensure_rsyslog_default_file_permissions_configured'] }
+end
+
+directory '/etc/rsyslog.d' do
+  recursive true
+  mode '0640'
+  only_if { cisecurity['benchmarks_rule_Ensure_rsyslog_default_file_permissions_configured'] }
+end
+
+append_if_no_line 'Ensure $FileCreateMode 0640' do
+  path '/etc/rsyslog.conf'
+  line '$FileCreateMode 0640'
+  only_if { cisecurity['benchmarks_rule_Ensure_rsyslog_default_file_permissions_configured'] }
 end
 
 journald_conf = ['[Journal]']
@@ -173,6 +221,7 @@ journald_conf.push('ForwardToSyslog=yes') if cisecurity['benchmarks_rule_Ensure_
 
 # xccdf_org.cisecurity.benchmarks_rule_4.2.2.2_Ensure_journald_is_configured_to_compress_large_log_files
 journald_conf.push('Compress=yes') if cisecurity['benchmarks_rule_Ensure_journald_is_configured_to_compress_large_log_files']
+include_recipe "#{cookbook_name}::journald"
 
 # xccdf_org.cisecurity.benchmarks_rule_4.2.2.3_Ensure_journald_is_configured_to_write_logfiles_to_persistent_disk
 journald_conf.push('Storage=persistent') if cisecurity['benchmarks_rule_Ensure_journald_is_configured_to_write_logfiles_to_persistent_disk']
@@ -197,52 +246,23 @@ service 'systemd-journald' do
   action :nothing
 end
 
-# xccdf_org.cisecurity.benchmarks_rule_5.1.2_Ensure_permissions_on_etccrontab_are_configured
-file '/etc/crontab' do
-  owner 'root'
-  group 'root'
-  mode '0600'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccrontab_are_configured'] }
+# xccdf_org.cisecurity.benchmarks_rule_5.1.2,5.1.3,5.1.4,5.1.5,5.1.6,5.1.7,5.1.8
+include_recipe "#{cookbook_name}::cron"
+
+# xccdf_org.cisecurity.benchmarks_rule_5.2.2_Ensure_sudo_commands_use_pty
+
+append_if_no_line 'Ensure sudo commands use pty' do
+  path '/etc/sudoers'
+  line 'Defaults use_pty'
+  only_if { cisecurity['benchmarks_rule_Ensure_sudo_commands_use_pty'] }
 end
 
-# xccdf_org.cisecurity.benchmarks_rule_5.1.3_Ensure_permissions_on_etccron.hourly_are_configured
-directory '/etc/cron.hourly' do
-  owner 'root'
-  group 'root'
-  mode '0700'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.hourly_are_configured'] }
-end
+# xccdf_org.cisecurity.benchmarks_rule_5.2.3_Ensure_sudo_log_file_exists
 
-# xccdf_org.cisecurity.benchmarks_rule_5.1.4_Ensure_permissions_on_etccron.daily_are_configured
-directory '/etc/cron.daily' do
-  owner 'root'
-  group 'root'
-  mode '0700'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.daily_are_configured'] }
-end
-
-# xccdf_org.cisecurity.benchmarks_rule_5.1.5_Ensure_permissions_on_etccron.weekly_are_configured
-directory '/etc/cron.weekly' do
-  owner 'root'
-  group 'root'
-  mode '0700'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.weekly_are_configured'] }
-end
-
-# xccdf_org.cisecurity.benchmarks_rule_5.1.6_Ensure_permissions_on_etccron.monthly_are_configured
-directory '/etc/cron.monthly' do
-  owner 'root'
-  group 'root'
-  mode '0700'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.monthly_are_configured'] }
-end
-
-# xccdf_org.cisecurity.benchmarks_rule_5.1.7_Ensure_permissions_on_etccron.d_are_configured
-directory '/etc/cron.d' do
-  owner 'root'
-  group 'root'
-  mode '0700'
-  only_if { cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.d_are_configured'] }
+append_if_no_line 'Ensure sudo log file exists' do
+  path '/etc/sudoers'
+  line "Defaults logfile=/var/log/sudo.log"
+  only_if { cisecurity['benchmarks_rule_Ensure_sudo_log_file_exists'] }
 end
 
 # xccdf_org.cisecurity.benchmarks_rule_5.2.3_Ensure_permissions_on_SSH_private_host_key_files_are_configured
@@ -255,6 +275,9 @@ end
   end
 end
 
+# xccdf_org.cisecurity.benchmarks_rule_5.3.7_Ensure_SSH_MaxAuthTries_is_set_to_4_or_less
+include_recipe "#{cookbook_name}::ssh"
+
 # xccdf_org.cisecurity.benchmarks_rule_5.4.1_Ensure_password_creation_requirements_are_configured
 template '/etc/security/pwquality.conf' do
   owner 'root'
@@ -266,6 +289,22 @@ template '/etc/security/pwquality.conf' do
     password_min_length: 14,
     password_min_class:  4
   )
+end
+
+# xccdf_org.cisecurity.benchmarks_rule_5.5.5_Ensure_default_user_umask_is_configured
+
+replace_or_add 'login.defs UMASK' do
+  path '/etc/login.defs'
+  pattern 'UMASK.*'
+  line 'UMASK     027'
+  only_if { cisecurity['benchmarks_rule_Ensure_default_user_umask_is_configured'] }
+end
+
+replace_or_add 'login.defs USERGROUPS_ENAB' do
+  path '/etc/login.defs'
+  pattern 'USERGROUPS_ENAB.*'
+  line 'USERGROUPS_ENAB     no'
+  only_if { cisecurity['benchmarks_rule_Ensure_default_user_umask_is_configured'] }
 end
 
 # xccdf_org.cisecurity.benchmarks_rule_5.7_Ensure_access_to_the_su_command_is_restricted

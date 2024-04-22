@@ -15,6 +15,7 @@ default['cis_compliance'].tap do |cis_compliance|
     cisecurity['benchmarks_rule_Create_custom_authselect_profile'] = true
     cisecurity['benchmarks_rule_Disable_USB_Storage'] = true
     cisecurity['benchmarks_rule_Ensure_DCCP_is_disabled'] = true
+    cisecurity['benchmarks_rule_Ensure_default_user_umask_is_configured'] = true
     cisecurity['benchmarks_rule_Ensure_ICMP_redirects_are_not_accepted'] = true
     cisecurity['benchmarks_rule_Ensure_IP_forwarding_is_disabled'] = true
     cisecurity['benchmarks_rule_Ensure_IPv6_is_disabled'] = true
@@ -49,12 +50,16 @@ default['cis_compliance'].tap do |cis_compliance|
     # cisecurity['benchmarks_rule_Ensure_default_user_umask_is_027_or_more_restrictive'] = true
     cisecurity['benchmarks_rule_Ensure_gpgcheck_is_globally_activated'] = true
     # cisecurity['benchmarks_rule_Ensure_inactive_password_lock_is_30_days_or_less'] = true
+    cisecurity['benchmarks_rule_Ensure_rsyslog_default_file_permissions_configured'] = true
     cisecurity['benchmarks_rule_Ensure_journald_is_configured_to_compress_large_log_files'] = true
     cisecurity['benchmarks_rule_Ensure_journald_is_configured_to_send_logs_to_rsyslog'] = true
     cisecurity['benchmarks_rule_Ensure_journald_is_configured_to_write_logfiles_to_persistent_disk'] = true
     cisecurity['benchmarks_rule_Ensure_local_login_warning_banner_is_configured_properly'] = true
     cisecurity['benchmarks_rule_Ensure_lockout_for_failed_password_attempts_is_configured'] = true
     cisecurity['benchmarks_rule_Ensure_message_of_the_day_is_configured_properly'] = true
+    cisecurity['benchmarks_rule_Ensure_nfs-utils_is_not_installed_or_the__nfs-server_service_is_masked'] = true
+    cisecurity['benchmarks_rule_Ensure_rpcbind_is_not_installed_or_the__rpcbind_services_are_masked'] = true
+    cisecurity['benchmarks_rule_Ensure_rsync_is_not_installed_or_the_rsyncd_service_is_masked'] = true
     # cisecurity['benchmarks_rule_Ensure_minimum_days_between_password_changes_is_7_or_more'] = true
     cisecurity['benchmarks_rule_Ensure_nodev_option_set_on_tmp_partition'] = true
     cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_tmp_partition'] = true
@@ -71,6 +76,7 @@ default['cis_compliance'].tap do |cis_compliance|
     # cisecurity['benchmarks_rule_Ensure_password_expiration_is_365_days_or_less'] = false
     cisecurity['benchmarks_rule_Ensure_password_reuse_is_limited'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_SSH_private_host_key_files_are_configured'] = true
+    cisecurity['benchmarks_rule_Ensure_only_strong_MAC_algorithms_are_used'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_bootloader_config_are_configured'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.d_are_configured'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.daily_are_configured'] = true
@@ -78,6 +84,7 @@ default['cis_compliance'].tap do |cis_compliance|
     cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.monthly_are_configured'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_etccron.weekly_are_configured'] = true
     cisecurity['benchmarks_rule_Ensure_permissions_on_etccrontab_are_configured'] = true
+    cisecurity['benchmarks_rule_Ensure_cron_is_restricted_to_authorized_users'] = true
     cisecurity['benchmarks_rule_Ensure_root_PATH_integrity'] = true
     cisecurity['benchmarks_rule_Ensure_secure_ICMP_redirects_are_not_accepted'] = true
     cisecurity['benchmarks_rule_Ensure_source_routed_packets_are_not_accepted'] = true
