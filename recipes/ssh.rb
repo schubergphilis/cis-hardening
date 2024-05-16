@@ -3,7 +3,7 @@ cisecurity = node['cis_compliance']['xccdf_org']['cisecurity']
 file 'sshd.changed' do
   action :nothing
   path '/tmp/.sshd-changed'
-  mode 0600
+  mode '600'
   owner 'root'
   group 'root'
 end
@@ -20,9 +20,9 @@ end
 
 # xccdf_org.cisecurity.benchmarks_rule_5.3.12_Ensure_SSH_PermitUserEnvironment_is_disabled
 
-append_if_no_line "Ensure sudo commands use pty" do
-  path "/etc/ssh/sshd_config"
-  line "PermitUserEnvironment no"
+append_if_no_line 'Ensure sudo commands use pty' do
+  path '/etc/ssh/sshd_config'
+  line 'PermitUserEnvironment no'
   only_if { cisecurity['benchmarks_rule_Ensure_SSH_PermitUserEnvironment_is_disabled'] }
 end
 

@@ -80,7 +80,7 @@ sysctl_items['kernel.randomize_va_space'] = 2 if cisecurity['benchmarks_rule_Ens
   file loginfile do
     content "This system is restricted to authorized users only. Individuals attempting unauthorized access will be prosecuted.\n" \
             "If unauthorized, terminate access now! Continued access indicates your acceptance of this information.\n"
-    mode 0644
+    mode '644'
     owner 'root'
     group 'root'
     only_if { cisecurity['benchmarks_rule_Ensure_message_of_the_day_is_configured_properly'] }
@@ -178,7 +178,7 @@ bash 'disable_wifi' do
   nmcli radio wifi off
   EOH
   only_if { cisecurity['benchmarks_rule_Ensure_wireless_interfaces_are_disabled'] }
-  #only_if { node['platform_version'].to_i >= 8 }
+  # only_if { node['platform_version'].to_i >= 8 }
   not_if 'nmcli radio wifi | grep disabled'
   ignore_failure true
   action :run
@@ -189,7 +189,7 @@ bash 'disable_wwan' do
   nmcli radio wwan off
   EOH
   only_if { cisecurity['benchmarks_rule_Ensure_wireless_interfaces_are_disabled'] }
-  #only_if { node['platform_version'].to_i >= 8 }
+  # only_if { node['platform_version'].to_i >= 8 }
   not_if 'nmcli radio wwan | grep disabled'
   ignore_failure true
   action :run
@@ -261,7 +261,7 @@ end
 
 append_if_no_line 'Ensure sudo log file exists' do
   path '/etc/sudoers'
-  line "Defaults logfile=/var/log/sudo.log"
+  line 'Defaults logfile=/var/log/sudo.log'
   only_if { cisecurity['benchmarks_rule_Ensure_sudo_log_file_exists'] }
 end
 
