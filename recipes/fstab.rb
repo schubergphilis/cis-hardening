@@ -15,6 +15,7 @@ mount tmp do
   fstype 'tmpfs'
   device tmp
   options tmp_options.join(',')
+  action [:mount, :enable]
   not_if 'mount | grep /var/tmp'
   only_if { cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_tmp_partition'] || cisecurity['benchmarks_rule_Ensure_nosuid_option_set_on_tmp_partition'] || cisecurity['benchmarks_rule_Ensure_noexec_option_set_on_tmp_partition'] }
 end
